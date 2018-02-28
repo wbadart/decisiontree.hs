@@ -19,7 +19,6 @@ splitBy p = foldr f [[]]
     where f c l@(x:xs) | p c = []:l
                        | otherwise = (c:x):xs
 
-
 main = do
     args <- getArgs
     let fname = if not $ null args

@@ -20,19 +20,16 @@ labelCounts :: [[String]] -> M.Map String Int
 labelCounts data_ =
     M.fromListWith (\_ a -> a + 1) $ zip (map last data_) (repeat 0)
 
-
 prediction :: [[String]] -> String
 prediction data_ =
     let counts = labelCounts data_
     in fst $ maximumBy (compare `on` snd) $ M.toList counts
-
 
 mktests :: [[String]] -> Int -> [Test]
 mktests data_ idx =
     let feature_vals = nub $ map (!!idx) data_
         mktest v = (==v) . (!!idx)
     in map mktest feature_vals
-
 
 bestFeature :: [[String]] -> Criterion -> Int
 bestFeature data_ criterion =
@@ -41,7 +38,6 @@ bestFeature data_ criterion =
         branches = mktests data_
         ftByIG = [(ft, thisIG $ branches ft) | ft <- features]
     in fst $ maximumBy (compare `on` snd) ftByIG
-
 
 classify :: [[String]] -> Criterion -> [String] -> Maybe String
 classify data_ criterion tup

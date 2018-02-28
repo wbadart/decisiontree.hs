@@ -10,7 +10,6 @@
 module Entropy
 ( informationGain
 , gainRatio
-, splitInfo
 , Criterion
 , Test
 ) where
@@ -29,14 +28,11 @@ type Criterion = [[String]] -> [Test] -> Float
 hasLabel :: String -> [String] -> Bool
 hasLabel label = (==label) . last
 
-
 countBy :: Num i => (a -> Bool) -> [a] -> i
 countBy p = genericLength . filter p
 
-
 labels :: [[String]] -> [String]
 labels = nub . map last
-
 
 lg :: Floating i => i -> i
 lg = logBase 2
@@ -52,7 +48,6 @@ entropy data_ =
         probs = [ct l / genericLength data_ | l <- labels data_]
     in negate $ sum [p * lg p | p <- probs]
 
-
 conditionalEntropy :: [[String]] -> [[String] -> Bool] -> Float
 conditionalEntropy data_ branches =
     let ct p = countBy p data_
@@ -63,17 +58,14 @@ conditionalEntropy data_ branches =
         ent p = (ct p / genericLength data_) * total p
     in sum $ map ent branches
 
-
 informationGain :: Criterion
 informationGain data_ branches =
     entropy data_ - conditionalEntropy data_ branches
-
 
 splitInfo :: Criterion
 splitInfo data_ branches =
     let bits c = (c / genericLength data_) * lg (c / genericLength data_)
     in negate $ sum $ map (bits . (`countBy` data_)) branches
-
 
 gainRatio :: Criterion
 gainRatio data_ branches =
