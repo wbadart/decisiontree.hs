@@ -6,7 +6,7 @@
  - created: FEB 2018
  -}
 
-module DecisionTree (classify) where
+module DecisionTree (classify, mktests) where
 
 import Data.Function (on)
 import Data.List (find, maximumBy, nub)

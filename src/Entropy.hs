@@ -9,11 +9,13 @@
 
 module Entropy
 ( informationGain
+, gainRatio
+, splitInfo
 , Criterion
 , Test
 ) where
 
-import Data.List (genericLength, nub)
+import Data.List (foldl', genericLength, nub)
 
 
 type Test = [String] -> Bool
@@ -56,12 +58,23 @@ conditionalEntropy data_ branches =
     let ct p = countBy p data_
         freqs p = [ct (\tup -> p tup && hasLabel l tup) | l <- labels data_]
         fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
-                    | f <- fracs p, c <- repeat $ ct p]
+                    | (f, c) <- zip (freqs p) (repeat $ ct p)]
         total p = negate $ sum $ fracs p
-        ent e p = e + (ct p / genericLength data_) * total p
-    in foldl ent 0 branches
+        ent p = (ct p / genericLength data_) * total p
+    in sum $ map ent branches
 
 
 informationGain :: Criterion
 informationGain data_ branches =
     entropy data_ - conditionalEntropy data_ branches
+
+
+splitInfo :: Criterion
+splitInfo data_ branches =
+    let bits c = (c / genericLength data_) * lg (c / genericLength data_)
+    in negate $ sum $ map (bits . (`countBy` data_)) branches
+
+
+gainRatio :: Criterion
+gainRatio data_ branches =
+    informationGain data_ branches / splitInfo data_ branches
