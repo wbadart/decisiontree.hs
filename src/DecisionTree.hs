@@ -34,10 +34,8 @@ mktests data_ idx =
 bestFeature :: [[String]] -> Criterion -> Int
 bestFeature data_ criterion =
     let features = [0..length (head data_) - 2]  -- -2 to exclude label
-        thisIG = criterion data_
-        branches = mktests data_
-        ftByIG = [(ft, thisIG $ branches ft) | ft <- features]
-    in fst $ maximumBy (compare `on` snd) ftByIG
+        metric = criterion data_; branches = mktests data_
+    in maximumBy (compare `on` metric . branches) features
 
 classify :: [[String]] -> Criterion -> [String] -> Maybe String
 classify data_ criterion tup
