@@ -8,8 +8,7 @@ The repository provides the necessary configuration for a quick cabal
 install:
 
     $ git clone https://github.com/wbadart/decisiontree.hs \
-        && cd decisiontree.hs \
-        && cabal install decisiontree-hs.cabal
+        && cabal install decisiontree.hs
 
 ## Usage
 
