@@ -22,8 +22,8 @@ splitBy p = foldr f [[]]
 
 main = do
     args <- getArgs
-    let fname = if length args >= 1
-                then args !! 0 else "weather.csv"
+    let fname = if not $ null args
+                then head args else "weather.csv"
 
     putStrLn $ "Using training set from " ++ fname
     hSetBuffering stdout NoBuffering

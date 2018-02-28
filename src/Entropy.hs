@@ -8,12 +8,16 @@
  -}
 
 module Entropy
-( conditionalEntropy
-, entropy
-, informationGain
+( informationGain
+, Criterion
+, Test
 ) where
 
 import Data.List (genericLength, nub)
+
+
+type Test = [String] -> Bool
+type Criterion = [[String]] -> [Test] -> Float
 
 
 -- =======
@@ -21,7 +25,7 @@ import Data.List (genericLength, nub)
 -- =======
 
 hasLabel :: String -> [String] -> Bool
-hasLabel label = ((==label) . last)
+hasLabel label = (==label) . last
 
 
 countBy :: Num i => (a -> Bool) -> [a] -> i
@@ -43,21 +47,21 @@ lg = logBase 2
 entropy :: [[String]] -> Float
 entropy data_ =
     let ct l = countBy (hasLabel l) data_
-        probs = [ct l / (genericLength data_) | l <- labels data_]
-    in negate $ sum [p * (lg p) | p <- probs]
+        probs = [ct l / genericLength data_ | l <- labels data_]
+    in negate $ sum [p * lg p | p <- probs]
 
 
-conditionalEntropy :: [[String]] -> [([String] -> Bool)] -> Float
+conditionalEntropy :: [[String]] -> [[String] -> Bool] -> Float
 conditionalEntropy data_ branches =
     let ct p = countBy p data_
         freqs p = [ct (\tup -> p tup && hasLabel l tup) | l <- labels data_]
-        zipper f c = if f /= 0 then (f / c) * (lg (f / c)) else 0
-        fracs p = zipWith zipper (freqs p) (repeat $ ct p)
+        fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
+                    | f <- fracs p, c <- repeat $ ct p]
         total p = negate $ sum $ fracs p
-        ent e p = e + (ct p / genericLength data_) * (total p)
+        ent e p = e + (ct p / genericLength data_) * total p
     in foldl ent 0 branches
 
 
-informationGain :: [[String]] -> [([String] -> Bool)] -> Float
+informationGain :: Criterion
 informationGain data_ branches =
     entropy data_ - conditionalEntropy data_ branches
