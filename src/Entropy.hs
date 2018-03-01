@@ -16,8 +16,7 @@ module Entropy
 
 import Data.List (foldl', genericLength, nub)
 
-
-type Test = [String] -> Bool
+type Test      = [String] -> Bool
 type Criterion = [[String]] -> [Test] -> Float
 
 
@@ -44,18 +43,18 @@ lg = logBase 2
 
 entropy :: [[String]] -> Float
 entropy data_ =
-    let ct l = countBy (hasLabel l) data_
+    let ct l  = countBy (hasLabel l) data_
         probs = [ct l / genericLength data_ | l <- labels data_]
     in negate $ sum [p * lg p | p <- probs]
 
 conditionalEntropy :: [[String]] -> [[String] -> Bool] -> Float
 conditionalEntropy data_ branches =
-    let ct p = countBy p data_
+    let ct p    = countBy p data_
         freqs p = [ct (\tup -> p tup && hasLabel l tup) | l <- labels data_]
         fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
-                    | (f, c) <- zip (freqs p) (repeat $ ct p)]
+                  | (f, c) <- zip (freqs p) (repeat $ ct p)]
         total p = negate $ sum $ fracs p
-        ent p = (ct p / genericLength data_) * total p
+        ent p   = (ct p / genericLength data_) * total p
     in sum $ map ent branches
 
 informationGain :: Criterion
