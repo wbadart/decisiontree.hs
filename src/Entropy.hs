@@ -51,6 +51,7 @@ conditionalEntropy :: [[String]] -> [[String] -> Bool] -> Float
 conditionalEntropy data_ branches =
     let ct p    = countBy p data_
         freqs p = [ct (\tup -> p tup && hasLabel l tup) | l <- labels data_]
+        -- freqs p = [ct ((&&) <$> p <*> hasLabel l) | l <- labels data_]
         fracs p = [if f /= 0 then (f / c) * lg (f / c) else 0
                   | (f, c) <- zip (freqs p) (repeat $ ct p)]
         total p = negate $ sum $ fracs p
