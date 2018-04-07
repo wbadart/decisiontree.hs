@@ -27,7 +27,7 @@ main = do
     putStrLn $ "Using training set from " ++ fname
     hSetBuffering stdout NoBuffering
 
-    contents <- readFile "weather.csv"
+    contents <- readFile fname
     let split = splitBy (==',')
         rows = map split $ lines contents
 
