@@ -10,26 +10,31 @@ module DecisionTree (classify, mktests) where
 
 import Data.Function (on)
 import Data.List (find, maximumBy, nub)
+
+import Data.Map (Map)
 import qualified Data.Map as M
 import qualified Data.Set as S
 
 import Entropy (Criterion, Test)
 
+uniq :: Ord a => [a] -> [a]
+uniq = S.toList . S.fromList
 
-labelCounts :: [[String]] -> M.Map String Int
-labelCounts data_ =
-    M.fromListWith (\_ a -> a + 1) $ zip (map last data_) (repeat 0)
+labelCounts :: [[String]] -> Map String Int
+labelCounts = M.fromListWith (+) . (`zip` repeat 1) . map last
+    -- M.fromListWith (\_ a -> a + 1) $ zip (map last data_) (repeat 0)
 
 prediction :: [[String]] -> String
-prediction data_ =
-    let counts = labelCounts data_
-    in fst $ maximumBy (compare `on` snd) $ M.toList counts
+prediction = fst . maximumBy (compare `on` snd) . M.toList . labelCounts
+    -- let counts = labelCounts data_
+    -- in fst $ maximumBy (compare `on` snd) $ M.toList counts
 
 mktests :: [[String]] -> Int -> [Test]
 mktests data_ idx =
-    let feature_vals = nub $ map (!!idx) data_
+    let feature_vals = uniq $ map (!!idx) data_
         mktest v     = (==v) . (!!idx)
     in map mktest feature_vals
+
 
 bestFeature :: [[String]] -> Criterion -> Int
 bestFeature data_ criterion =
